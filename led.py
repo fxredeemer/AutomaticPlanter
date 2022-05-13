@@ -26,7 +26,7 @@ def SetPumpState(pump, enable):
 
 while True:
     utime.sleep(1)
-    led.Togge()
+    led.toggle()
     for pot in pots:
         inPin = pot[0]
         outPin = pot[1]
