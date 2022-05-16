@@ -2,7 +2,7 @@ import machine
 import utime
 
 humidityThreshold = 20000
-led = machine.Pin(13, machine.Pin.OUT)
+led = machine.Pin(25, machine.Pin.OUT)
 
 out19 = machine.Pin(19, machine.Pin.OUT)
 out20 = machine.Pin(20, machine.Pin.OUT)
@@ -11,8 +11,8 @@ in26 = machine.ADC(26)
 in27 = machine.ADC(27)
 
 pots = [
-    ( in26, out19 ),
-    ( in27, out20 ),
+    ( in26, out19, "26/19" ),
+    ( in27, out20, "27/20" ),
 ]
 
 def ReadHumidity(humiditySensor):
@@ -31,8 +31,9 @@ while True:
         inPin = pot[0]
         outPin = pot[1]
         humidity = ReadHumidity(inPin)
-        enablePumpNecessary = CheckPumpEnablingNecessary(humidity)
+        enablePumpNecessary = CheckPumpEnablingNecessary(humidity)   
         SetPumpState(outPin, enablePumpNecessary)
+        print(pot[2])
         print(humidity)
         print(enablePumpNecessary)
         print()
