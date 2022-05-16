@@ -4,15 +4,33 @@ import utime
 humidityThreshold = 20000
 led = machine.Pin(25, machine.Pin.OUT)
 
-out19 = machine.Pin(19, machine.Pin.OUT)
-out20 = machine.Pin(20, machine.Pin.OUT)
+hysteresis = 10
 
-in26 = machine.ADC(26)
-in27 = machine.ADC(27)
+class Pot:
+    def __init__(self, input, output):
+        self.input = machine.ADC(input)
+        self.output = machine.Pin(output, machine.Pin.OUT)
+        self.title = f"In: {input} | Out: {output}"
+        self.enabled = False
+        self.hysteresis = 10
+    
+    def Set(self, enabled):
+        oldState = self.enabled
+
+        if oldState and (not enabled):
+            self.hysteresis = self.hysteresis - 1
+        
+        if (enabled):
+            self.hysteresis = 10
+
+        self.enabled = self.hysteresis > 0
+
+    def GetState(self):
+        return f"Enabled: {self.enabled} | Hyst: {self.hysteresis}"
 
 pots = [
-    ( in26, out19, "26/19" ),
-    ( in27, out20, "27/20" ),
+    Pot(26, 19),
+    # Pot(27, 20),
 ]
 
 def ReadHumidity(humiditySensor):
@@ -28,16 +46,13 @@ while True:
     utime.sleep(1)
     led.toggle()
     for pot in pots:
-        inPin = pot[0]
-        outPin = pot[1]
-        humidity = ReadHumidity(inPin)
-        enablePumpNecessary = CheckPumpEnablingNecessary(humidity)   
-        SetPumpState(outPin, enablePumpNecessary)
-        print(pot[2])
+        humidity = ReadHumidity(pot.input)
+
+        pot.Set(CheckPumpEnablingNecessary(humidity))   
+        SetPumpState(pot.output, pot.enabled)
+
+        print(pot.title)
         print(humidity)
-        print(enablePumpNecessary)
+        print(pot.GetState())
         print()
     print("-------------------------------------") 
-
-
-#7:15
