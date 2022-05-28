@@ -1,10 +1,10 @@
 import machine
 import utime
 
-humidityThreshold = 20000
+maxHysteresis = 4
+humidityThreshold = 50000
 led = machine.Pin(25, machine.Pin.OUT)
 
-hysteresis = 10
 
 class Pot:
     def __init__(self, input, output):
@@ -12,7 +12,7 @@ class Pot:
         self.output = machine.Pin(output, machine.Pin.OUT)
         self.title = f"In: {input} | Out: {output}"
         self.enabled = False
-        self.hysteresis = 10
+        self.hysteresis = 0
     
     def Set(self, enabled):
         oldState = self.enabled
@@ -21,7 +21,7 @@ class Pot:
             self.hysteresis = self.hysteresis - 1
         
         if (enabled):
-            self.hysteresis = 10
+            self.hysteresis = maxHysteresis
 
         self.enabled = self.hysteresis > 0
 
